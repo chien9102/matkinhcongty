@@ -8,7 +8,7 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import { Modal, Box, Typography, TextField, Button, Alert, Snackbar, IconButton } from '@mui/material';
-import { addDocument, fetchDocuments, deleteDocument, updateDocument } from "../../services/FirebaseService";
+import { addDocument, fetchDocuments, deleteDocument } from "../../services/FirebaseService";
 
 
 
@@ -28,10 +28,11 @@ function Categories(props) {
   const [categories, setCategories] = useState([]);
   const [category, setCategory] = useState({});
   const [errors, setErrors] = useState({ name: '', description: '' });
-  const [update, setUpdate] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(false); // Trạng thái cho Snackbar
+  const [update,setUpdate] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false); // Trạng thái mở Modal Delete
-  const [idDelete, setIdDelete] = useState(null);
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success', });
+  const [idDelete,setIdDelete] = useState(null);
+
   useEffect(() => {
     const fetchData = async () => {
       const categoriesData = await fetchDocuments('categories');
@@ -47,60 +48,41 @@ function Categories(props) {
     setErrors(tempErrors);
     return !tempErrors.name && !tempErrors.description;
   };
-  const handleSnackbarClose = () => {
-    setSnackbar({ ...snackbar, open: false });
-  };
+
   const handleSubmit = async () => {
     if (validate()) {
-      if (category.id) {
-        // Nếu đang chỉnh sửa thì cập nhật danh mục
-        await updateDocument("categories", category.id, category); 
-        setSnackbar({
-          open: true,
-          message: 'Category edited successfully!',
-          severity: 'info',
-        });
-      } else {
-        // Nếu không thì thêm mới danh mục
-        await addDocument("categories", category);
-        setSnackbar({
-          open: true,
-          message: 'Category added successfully!',
-          severity: 'success',
-        });
-      }
+      await addDocument("categories", category);
+      setCategory({});
       handleClose();
       setUpdate(!update);
+      // Hiển thị thông báo thành công
+      setSuccessMessage(true);
     }
   };
 
-  const onEdit = (element) => {
-    setCategory(element); // Gán danh mục vào state
-    setOpen(true); // Mở modal
-  };
+  const onEdit = (e) => {
+  setOpen(true)
+ 
+  }
 
   const onDelete = (element) => {
-    setDeleteModalOpen(true);
-    setIdDelete(element.id);
+     setDeleteModalOpen(true);
+     setIdDelete(element.id);
   };
 
   const handleDelete = async () => {
-    if (idDelete) {
-      await deleteDocument("categories", idDelete);
-      setSnackbar({
-        open: true,
-        message: 'Category deleted successfully!',
-        severity: 'warning',
-      });
-      setUpdate(!update);
-      setDeleteModalOpen(false);
-    }
+        if(idDelete) {
+           await  deleteDocument("categories", idDelete);  
+           setUpdate(!update);
+           setDeleteModalOpen(false);
+        }
   };
 
-  const handleOpen = () => {
-    setCategory([]);
-    setOpen(true)
+  const handleSnackbarClose = () => {
+    setSuccessMessage(false); // Đóng Snackbar khi hết thời gian
   };
+
+  const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const handleDeleteModalClose = () => setDeleteModalOpen(false);
 
@@ -132,7 +114,7 @@ function Categories(props) {
           >
             <Box sx={style}>
               <Typography id="add-category-modal-title" variant="h6" component="h2">
-              {category.id ? "Edit" : "Add"} Category
+                Add New Category
               </Typography>
               <TextField
                 id="category-name"
@@ -162,7 +144,7 @@ function Categories(props) {
                 onClick={handleSubmit}
                 sx={{ mt: 2 }}
               >
-                {category.id ? "Edit" : "Add"} Category
+                Add Category
               </Button>
             </Box>
           </Modal>
@@ -193,7 +175,7 @@ function Categories(props) {
                   <TableCell align="right">{element.description}</TableCell>
                   <TableCell align="right">
                     {/* Nút Edit */}
-                    <IconButton
+                    <IconButton 
                       color="primary"
                       onClick={() => onEdit(element)}
                     >
@@ -214,18 +196,18 @@ function Categories(props) {
           </Table>
         </TableContainer>
 
-        {/* Snackbar for notifications */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={handleSnackbarClose}
-      >
-        <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: '100%' }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-        {/* Modal xác nhận xóa */}
-        <Modal
+        {/* Snackbar hiển thị thông báo thành công */}
+        <Snackbar
+          open={successMessage}
+          autoHideDuration={3000} // 3 giây
+          onClose={handleSnackbarClose}
+        >
+          <Alert onClose={handleSnackbarClose} severity="success" sx={{ width: '100%' }}>
+            Category added successfully!
+          </Alert>
+        </Snackbar>
+         {/* Modal xác nhận xóa */}
+         <Modal
           open={deleteModalOpen}
           onClose={handleDeleteModalClose}
           aria-labelledby="delete-category-modal-title"
