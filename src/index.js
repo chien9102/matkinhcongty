@@ -3,11 +3,17 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { BrandsProvider } from './context/BrandsContext';
+import { CategoriesProvider } from './context/CategoriesContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <CategoriesProvider>
+    <BrandsProvider>
+       <App />
+    </BrandsProvider>
+    </CategoriesProvider>
   </React.StrictMode>
 );
 

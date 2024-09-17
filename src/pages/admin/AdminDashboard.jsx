@@ -65,7 +65,7 @@ function AdminDashboard(props) {
                 </div>
             </div>
             <div className="right flex-1">
-                <div className="right-header items-center flex justify-between p-6">
+                <div className="right-header items-center flex justify-between px-6">
                     <div >
                         <h1 class="text-3xl">Good Morning,<b>John Doe</b></h1>
                         <h>Your performance summary this week</h>

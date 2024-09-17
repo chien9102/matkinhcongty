@@ -8,7 +8,7 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import { Modal, Box, Typography, TextField, Button, Alert, Snackbar, IconButton } from '@mui/material';
-import { addDocument, fetchDocuments, deleteDocument,updateDocument } from "../../services/FirebaseService";
+import { addDocument, fetchDocuments, deleteDocument, updateDocument } from "../../services/FirebaseService";
 
 
 
@@ -29,9 +29,9 @@ function Categories(props) {
   const [category, setCategory] = useState({});
   const [errors, setErrors] = useState({ name: '', description: '' });
   const [successMessage, setSuccessMessage] = useState(false); // Trạng thái cho Snackbar
-  const [update,setUpdate] = useState(false);
+  const [update, setUpdate] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false); // Trạng thái mở Modal Delete
-  const [idDelete,setIdDelete] = useState(null);
+  const [idDelete, setIdDelete] = useState(null);
   const [isEdit, setIsEdit] = useState(false); // Xác định đang ở trạng thái chỉnh sửa hay thêm mới
   useEffect(() => {
     const fetchData = async () => {
@@ -72,16 +72,16 @@ function Categories(props) {
   };
 
   const onDelete = (element) => {
-     setDeleteModalOpen(true);
-     setIdDelete(element.id);
+    setDeleteModalOpen(true);
+    setIdDelete(element.id);
   };
 
   const handleDelete = async () => {
-        if(idDelete) {
-           await  deleteDocument("categories", idDelete);  
-           setUpdate(!update);
-           setDeleteModalOpen(false);
-        }
+    if (idDelete) {
+      await deleteDocument("categories", idDelete);
+      setUpdate(!update);
+      setDeleteModalOpen(false);
+    }
   };
 
   const handleSnackbarClose = () => {
@@ -181,7 +181,7 @@ function Categories(props) {
                   <TableCell align="right">{element.description}</TableCell>
                   <TableCell align="right">
                     {/* Nút Edit */}
-                    <IconButton 
+                    <IconButton
                       color="primary"
                       onClick={() => onEdit(element)}
                     >
@@ -212,8 +212,8 @@ function Categories(props) {
             Category added successfully!
           </Alert>
         </Snackbar>
-         {/* Modal xác nhận xóa */}
-         <Modal
+        {/* Modal xác nhận xóa */}
+        <Modal
           open={deleteModalOpen}
           onClose={handleDeleteModalClose}
           aria-labelledby="delete-category-modal-title"
@@ -244,6 +244,8 @@ function Categories(props) {
             </Button>
           </Box>
         </Modal>
+
+        
       </div>
     </div>
   );

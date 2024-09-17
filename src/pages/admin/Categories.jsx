@@ -9,20 +9,9 @@ import Paper from '@mui/material/Paper';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import { Modal, Box, Typography, TextField, Button, Alert, Snackbar, IconButton } from '@mui/material';
 import { addDocument, fetchDocuments, deleteDocument, updateDocument } from "../../services/FirebaseService";
+import ModalDelete from './ModalDelete';
+import { style } from '../../utils/Constants';
 
-
-
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 400,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  p: 4,
-};
 function Categories(props) {
   const [open, setOpen] = useState(false);
   const [categories, setCategories] = useState([]);
@@ -54,7 +43,7 @@ function Categories(props) {
     if (validate()) {
       if (category.id) {
         // Nếu đang chỉnh sửa thì cập nhật danh mục
-        await updateDocument("categories", category.id, category); 
+        await updateDocument("categories", category.id, category);
         setSnackbar({
           open: true,
           message: 'Category edited successfully!',
@@ -132,7 +121,7 @@ function Categories(props) {
           >
             <Box sx={style}>
               <Typography id="add-category-modal-title" variant="h6" component="h2">
-              {category.id ? "Edit" : "Add"} Category
+                {category.id ? "Edit" : "Add"} Category
               </Typography>
               <TextField
                 id="category-name"
@@ -190,7 +179,7 @@ function Categories(props) {
                     {index + 1}
                   </TableCell>
                   <TableCell align="right">{element.name}</TableCell>
-                  <TableCell align="right">{element.description}</TableCell>
+                  <TableCell align="right">{element.description.length > 25 ? `${element.description.substring(0, 25)}...` : element.description}</TableCell>
                   <TableCell align="right">
                     {/* Nút Edit */}
                     <IconButton
@@ -215,47 +204,16 @@ function Categories(props) {
         </TableContainer>
 
         {/* Snackbar for notifications */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={handleSnackbarClose}
-      >
-        <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: '100%' }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-        {/* Modal xác nhận xóa */}
-        <Modal
-          open={deleteModalOpen}
-          onClose={handleDeleteModalClose}
-          aria-labelledby="delete-category-modal-title"
-          aria-describedby="delete-category-modal-description"
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={3000}
+          onClose={handleSnackbarClose}
         >
-          <Box sx={style}>
-            <Typography id="delete-category-modal-title" variant="h6" component="h2">
-              Confirm Delete
-            </Typography>
-            <Typography id="delete-category-modal-description" sx={{ mt: 2 }}>
-              Are you sure you want to delete this category?
-            </Typography>
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={handleDelete}
-              sx={{ mt: 2, mr: 2 }}
-            >
-              Yes, Delete
-            </Button>
-            <Button
-              variant="outlined"
-              color="primary"
-              onClick={handleDeleteModalClose}
-              sx={{ mt: 2 }}
-            >
-              Cancel
-            </Button>
-          </Box>
-        </Modal>
+          <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: '100%' }}>
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
+        <ModalDelete handleDelete={handleDelete} deleteModalOpen={deleteModalOpen} handleDeleteModalClose={handleDeleteModalClose}/>
       </div>
     </div>
   );
