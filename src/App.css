@@ -14,7 +14,9 @@ img {
  .quay {
     animation: quay 1s ease-in alternate-reverse;
  }
-
+ .css-1wnsr1i {
+    width: auto !important;
+ }
  /* mobile */
 @media screen and (max-width:789px) {
     .left-mobile {

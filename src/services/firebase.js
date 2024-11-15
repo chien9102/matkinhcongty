@@ -4,13 +4,13 @@ import { getStorage } from "firebase/storage";
 import { getAuth,GoogleAuthProvider } from 'firebase/auth';
 
 const firebaseConfig = {
-    apiKey: "AIzaSyCddkNL6L-hgo16AdROrZZdBwvtTMYVRhE",
-    authDomain: "eyeglasses-51304.firebaseapp.com",
-    projectId: "eyeglasses-51304",
-    storageBucket: "eyeglasses-51304.appspot.com",
-    messagingSenderId: "636187785605",
-    appId: "1:636187785605:web:b32d9e34a29deb9ea02cec",
-    measurementId: "G-74HFN1BL62"
+  apiKey: "AIzaSyDbGhX_iav4Be5dt83sApd1nwOsyCPK9H8",
+  authDomain: "matkinh-7589c.firebaseapp.com",
+  projectId: "matkinh-7589c",
+  storageBucket: "matkinh-7589c.appspot.com",
+  messagingSenderId: "1019126288752",
+  appId: "1:1019126288752:web:c765ff820089d64d983fb5",
+  measurementId: "G-8BNP58KJH1"
   };
 
 // Initialize Firebase

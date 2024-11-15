@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, IconButton, ButtonGroup, Box } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
-import { addDocument, fetchDocuments, deleteDocument, updateDocument } from "../../services/FirebaseService";
-
+import { addDocument, fetchDocuments, updateDocument, deleteDocument } from '../../../services/FirebaseService';
 const style = {
     position: 'absolute',
     top: '50%',
@@ -15,18 +14,17 @@ const style = {
     boxShadow: 24,
     p: 4,
 };
-
-function DashBoard(props) {
+function Province(props) {
     const [open, setOpen] = useState(false);
     const [errors, setErrors] = useState({ name: '', description: '' });
     const [dash1, setDash1] = useState([]);
-    const [dashboard, setDashboard] = useState({});
+    const [province, setProvince] = useState({});
     const [update, setUpdate] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false); // Trạng thái mở Modal Delete
     const [idDelete, setIdDelete] = useState(null);
     useEffect(() => {
         const fetchData = async () => {
-            const dashData = await fetchDocuments('DashBoard');
+            const dashData = await fetchDocuments('Province');
             setDash1(dashData);
         };
         fetchData();
@@ -34,17 +32,20 @@ function DashBoard(props) {
 
     const validate = () => {
         let tempErrors = {};
-        tempErrors.name = dashboard.name ? '' : 'Name is required';
-        tempErrors.description = dashboard.description ? '' : 'Description is required';
+        tempErrors.name = province.name ? '' : 'Name is required';
+        tempErrors.description = province.description ? '' : 'Description is required';
         setErrors(tempErrors);
-
         return !tempErrors.name && !tempErrors.description;
     };
 
     const handleSubmit = async () => {
         if (validate()) {
-            await addDocument("DashBoard", dashboard);
-            setDashboard({});
+            if (province.id) {
+                await updateDocument("Province", province.id, province);
+            } else {
+                await addDocument("Province", province);
+            }
+            setProvince({});
             handleClose();
             setUpdate(!update);
         }
@@ -52,13 +53,16 @@ function DashBoard(props) {
 
     const handleDelete = async () => {
         if (idDelete) {
-            await deleteDocument("DashBoard", idDelete);
+            await deleteDocument("Province", idDelete);
             setUpdate(!update);
             setDeleteModalOpen(false);
         }
     };
-    const onEdit = (element) => {
 
+    const onEdit = (element) => {
+        setProvince(element); // Gán danh mục vào state
+        setErrors({});
+        setOpen(true); // Mở modal
     };
 
     const onDelete = (element) => {
@@ -68,6 +72,7 @@ function DashBoard(props) {
 
     const handleOpen = () => {
         setOpen(true);
+        setProvince({});
     };
 
     const handleClose = () => setOpen(false);
@@ -76,7 +81,7 @@ function DashBoard(props) {
         <div>
             <div className="div">
                 <div className="flex justify-between p-6">
-                    <h1 className='text-2xl'><b>DashBoard</b></h1>
+                    <h1 className='text-2xl'><b>Province</b></h1>
                     <ButtonGroup variant="contained" aria-label="Basic button group">
                         <div class="input-group">
                             <input type="text" class="form-control" placeholder="Seacrh ..." aria-label="Recipient's username" aria-describedby="basic-addon2" />
@@ -84,35 +89,35 @@ function DashBoard(props) {
                         </div>
                     </ButtonGroup>
                     <div className="div">
-                        <Button variant="contained" onClick={handleOpen}>Add DashBoard</Button>
+                        <Button variant="contained" onClick={handleOpen}>Add Province</Button>
                         <Modal
                             open={open}
                             onClose={handleClose}
-                            aria-labelledby="add-dashboard-modal-title"
-                            aria-describedby="add-dashboard-modal-description"
+                            aria-labelledby="add-Province-modal-title"
+                            aria-describedby="add-Province-modal-description"
                         >
                             <Box sx={style}>
-                                <Typography id="add-dashboard-modal-title" variant="h6" component="h2">
-                                    Add New DashBoard
+                                <Typography id="add-Province-modal-title" variant="h6" component="h2">
+                                    Add New Province
                                 </Typography>
                                 <TextField
-                                    id="dashboard-name"
-                                    label="DashBoard Name"
+                                    id="Province-name"
+                                    label="Province Name"
                                     fullWidth
-                                    value={dashboard && dashboard.name}
-                                    onChange={(e) => setDashboard({ ...dashboard, name: e.target.value })}
+                                    value={province && province.name}
+                                    onChange={(e) => setProvince({ ...province, name: e.target.value })}
                                     error={!!errors.name}
                                     helperText={errors.name}
                                     margin="normal"
                                 />
                                 <TextField
-                                    id="dashboard-description"
+                                    id="Province-description"
                                     label="Description"
                                     fullWidth
                                     multiline
                                     rows={4}
-                                    value={dashboard && dashboard.description}
-                                    onChange={(e) => setDashboard({ ...dashboard, description: e.target.value })}
+                                    value={province && province.description}
+                                    onChange={(e) => setProvince({ ...province, description: e.target.value })}
                                     error={!!errors.description}
                                     helperText={errors.description}
                                     margin="normal"
@@ -123,7 +128,7 @@ function DashBoard(props) {
                                     onClick={handleSubmit}
                                     sx={{ mt: 2 }}
                                 >
-                                    Add DashBoard
+                                    Add Province
                                 </Button>
                             </Box>
                         </Modal>
@@ -158,6 +163,7 @@ function DashBoard(props) {
                                         {/* Nút Edit */}
                                         <IconButton
                                             color="primary"
+                                            onClick={() => onEdit(element)}
                                         >
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </IconButton>
@@ -213,4 +219,4 @@ function DashBoard(props) {
     );
 }
 
-export default DashBoard;
+export default Province;

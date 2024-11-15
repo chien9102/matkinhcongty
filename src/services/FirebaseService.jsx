@@ -1,5 +1,5 @@
 // src/services/firebaseService.js
-import { collection, addDoc, getDocs, doc, deleteDoc, updateDoc, onSnapshot } from "firebase/firestore";
+import { collection, addDoc, getDocs, doc, deleteDoc, updateDoc, onSnapshot, setDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { db, storage } from "./firebase";
 import { v4 as uuidv4 } from "uuid";
@@ -25,7 +25,8 @@ export const addDocument = async (collectionName, values, imgUpload) => {
             values.imgUrl = imgUrl; // Lưu URL vào đối tượng values
             console.log(values);
         }
-        await addDoc(collection(db, collectionName), values);
+        const docRef = await addDoc(collection(db, collectionName), values); // Lưu lại docRef
+        return { id: docRef.id, ...values }; // Trả về id và values đã lưu
     } catch (error) {
         console.error('Error adding document:', error);
         throw error;
@@ -65,8 +66,26 @@ export const deleteDocument = async (collectionName, docId, imgUrl) => {
 // Hàm để đăng ký một bộ sưu tập và gọi lại một callback với dữ liệu mới
 export const subscribeToCollection = (collectionName, callback) => {
     const unsubscribe = onSnapshot(collection(db, collectionName), (snapshot) => {
-      const newData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      callback(newData);
+        const newData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        callback(newData);
     });
-return unsubscribe; // Trả về hàm unsubscribe để dọn dẹp
-  };
+    return unsubscribe; // Trả về hàm unsubscribe để dọn dẹp
+};
+
+
+// Hàm thêm tài liệu với email làm id
+export const addDocumentById = async (collectionName, id, values, imgUpload) => {
+    try {
+        if (imgUpload) {
+            const storageRef = ref(storage, `${collectionName}/${uuidv4()}`);
+            await uploadBytes(storageRef, imgUpload);
+            const imgUrl = await getDownloadURL(storageRef);
+            values.imgUrl = imgUrl; // Lưu URL vào đối tượng values
+        }
+        // Sử dụng setDoc với email làm id
+        await setDoc(doc(db, collectionName, id), values);
+    } catch (error) {
+        console.error('Error adding document:', error);
+        throw error;
+    }
+};

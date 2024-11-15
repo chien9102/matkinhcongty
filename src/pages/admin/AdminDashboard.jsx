@@ -54,7 +54,6 @@ function AdminDashboard(props) {
                             </div>
                         ))
                     }
-                    
                     <h1 className={`ms-4 mt-3 ${show ? "" : "hidden"}`}>Pages</h1>
 
                     <Link to={"/reviews"} className="flex items-center p-3 mt-2 hover:bg-slate-300  hover:text-blue-800">

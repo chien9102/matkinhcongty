@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, IconButton, ButtonGroup, Box } from '@mui/material';
+import React, { useContext, useEffect, useState } from 'react';
+import { TextField, Table, TableBody, TableCell, TableContainer, MenuItem, TableHead, TableRow, Paper, Button, IconButton, ButtonGroup, Box } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
-import { addDocument, fetchDocuments, deleteDocument, updateDocument } from "../../services/FirebaseService";
-
+import { addDocument, deleteDocument, fetchDocuments, updateDocument } from '../../../services/FirebaseService';
+import { ContextProvince } from '../../../context/ProvinceContext';
 const style = {
     position: 'absolute',
     top: '50%',
@@ -15,50 +15,56 @@ const style = {
     boxShadow: 24,
     p: 4,
 };
-
-function DashBoard(props) {
+function District(props) {
     const [open, setOpen] = useState(false);
-    const [errors, setErrors] = useState({ name: '', description: '' });
+    const provinces = useContext(ContextProvince);
+    const [errors, setErrors] = useState({ name: '', province: '' });
     const [dash1, setDash1] = useState([]);
-    const [dashboard, setDashboard] = useState({});
+    const [district, setDistrict] = useState({});
     const [update, setUpdate] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false); // Trạng thái mở Modal Delete
     const [idDelete, setIdDelete] = useState(null);
+
     useEffect(() => {
         const fetchData = async () => {
-            const dashData = await fetchDocuments('DashBoard');
+            const dashData = await fetchDocuments('District');
             setDash1(dashData);
         };
         fetchData();
     }, [update]);
 
+
     const validate = () => {
         let tempErrors = {};
-        tempErrors.name = dashboard.name ? '' : 'Name is required';
-        tempErrors.description = dashboard.description ? '' : 'Description is required';
+        tempErrors.name = district.name ? '' : 'Name is required';
+        tempErrors.province = district.province ? '' : 'province is required';
         setErrors(tempErrors);
 
-        return !tempErrors.name && !tempErrors.description;
+        return !tempErrors.name && !tempErrors.province;
     };
 
     const handleSubmit = async () => {
-        if (validate()) {
-            await addDocument("DashBoard", dashboard);
-            setDashboard({});
-            handleClose();
-            setUpdate(!update);
+        if (district.id) {
+            await updateDocument("District", district.id, district);
+        } else {
+            await addDocument("District", district);
         }
+        setDistrict({});
+        handleClose();
+        setUpdate(!update);
     };
 
     const handleDelete = async () => {
         if (idDelete) {
-            await deleteDocument("DashBoard", idDelete);
+            await deleteDocument("District", idDelete);
             setUpdate(!update);
             setDeleteModalOpen(false);
         }
     };
     const onEdit = (element) => {
-
+        setDistrict(element); // Gán danh mục vào state
+        setErrors({});
+        setOpen(true); // Mở modal
     };
 
     const onDelete = (element) => {
@@ -72,11 +78,16 @@ function DashBoard(props) {
 
     const handleClose = () => setOpen(false);
     const handleDeleteModalClose = () => setDeleteModalOpen(false);
+
+    const getNameProvince = (id) => {
+        const province = provinces.find(a => a.id == id);
+        return province ? province.name : ""
+    }
     return (
         <div>
             <div className="div">
                 <div className="flex justify-between p-6">
-                    <h1 className='text-2xl'><b>DashBoard</b></h1>
+                    <h1 className='text-2xl'><b>District</b></h1>
                     <ButtonGroup variant="contained" aria-label="Basic button group">
                         <div class="input-group">
                             <input type="text" class="form-control" placeholder="Seacrh ..." aria-label="Recipient's username" aria-describedby="basic-addon2" />
@@ -84,46 +95,53 @@ function DashBoard(props) {
                         </div>
                     </ButtonGroup>
                     <div className="div">
-                        <Button variant="contained" onClick={handleOpen}>Add DashBoard</Button>
+                        <Button variant="contained" onClick={handleOpen}>Add District</Button>
                         <Modal
                             open={open}
                             onClose={handleClose}
-                            aria-labelledby="add-dashboard-modal-title"
-                            aria-describedby="add-dashboard-modal-description"
+                            aria-labelledby="add-District-modal-title"
+                            aria-describedby="add-District-modal-province"
                         >
                             <Box sx={style}>
-                                <Typography id="add-dashboard-modal-title" variant="h6" component="h2">
-                                    Add New DashBoard
+                                <Typography id="add-District-modal-title" variant="h6" component="h2">
+                                    Add New District
                                 </Typography>
                                 <TextField
-                                    id="dashboard-name"
-                                    label="DashBoard Name"
+                                    id="District-name"
+                                    label="District Name"
                                     fullWidth
-                                    value={dashboard && dashboard.name}
-                                    onChange={(e) => setDashboard({ ...dashboard, name: e.target.value })}
+                                    value={district && district.name}
+                                    onChange={(e) => setDistrict({ ...district, name: e.target.value })}
                                     error={!!errors.name}
                                     helperText={errors.name}
                                     margin="normal"
                                 />
                                 <TextField
-                                    id="dashboard-description"
-                                    label="Description"
+                                    select
+                                    label="province"
                                     fullWidth
-                                    multiline
                                     rows={4}
-                                    value={dashboard && dashboard.description}
-                                    onChange={(e) => setDashboard({ ...dashboard, description: e.target.value })}
-                                    error={!!errors.description}
-                                    helperText={errors.description}
+                                    value={district.province}
+                                    onChange={(e) => setDistrict({ ...district, province: e.target.value })}
                                     margin="normal"
-                                />
+                                >
+                                    {provinces.length > 0 ? (
+                                        provinces.map((province) => (
+                                            <MenuItem key={province.id} value={province.id}>
+                                                {province.name}
+                                            </MenuItem>
+                                        ))
+                                    ) : (
+                                        <MenuItem disabled>No Provinces Available</MenuItem>
+                                    )}
+                                </TextField>
                                 <Button
                                     variant="contained"
                                     color="primary"
                                     onClick={handleSubmit}
                                     sx={{ mt: 2 }}
                                 >
-                                    Add DashBoard
+                                    Add District
                                 </Button>
                             </Box>
                         </Modal>
@@ -138,7 +156,7 @@ function DashBoard(props) {
                             <TableRow>
                                 <TableCell>#</TableCell>
                                 <TableCell align="right">Name</TableCell>
-                                <TableCell align="right">Description</TableCell>
+                                <TableCell align="right">Province</TableCell>
                                 <TableCell align="right">Action</TableCell>
                             </TableRow>
                         </TableHead>
@@ -153,11 +171,12 @@ function DashBoard(props) {
                                         {index + 1}
                                     </TableCell>
                                     <TableCell align="right">{element.name}</TableCell>
-                                    <TableCell align="right">{element.description}</TableCell>
+                                    <TableCell align="right">{getNameProvince(element.province)}</TableCell>
                                     <TableCell align="right">
                                         {/* Nút Edit */}
                                         <IconButton
                                             color="primary"
+                                            onClick={() => onEdit(element)}
                                         >
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </IconButton>
@@ -182,13 +201,13 @@ function DashBoard(props) {
                 open={deleteModalOpen}
                 onClose={handleDeleteModalClose}
                 aria-labelledby="delete-category-modal-title"
-                aria-describedby="delete-category-modal-description"
+                aria-describedby="delete-category-modal-province"
             >
                 <Box sx={style}>
                     <Typography id="delete-category-modal-title" variant="h6" component="h2">
                         Confirm Delete
                     </Typography>
-                    <Typography id="delete-category-modal-description" sx={{ mt: 2 }}>
+                    <Typography id="delete-category-modal-province" sx={{ mt: 2 }}>
                         Are you sure you want to delete this category?
                     </Typography>
                     <Button
@@ -213,4 +232,4 @@ function DashBoard(props) {
     );
 }
 
-export default DashBoard;
+export default District;

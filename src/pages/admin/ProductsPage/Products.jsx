@@ -9,13 +9,12 @@ import Paper from '@mui/material/Paper';
 import ModalDelete from '../ModalDelete';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import { TextField, Box, Modal, Typography, MenuItem, IconButton,Button ,ButtonGroup, TablePagination } from '@mui/material';
+import { TextField, Box, Modal, Typography, MenuItem, IconButton, Button, ButtonGroup, TablePagination } from '@mui/material';
 import { style } from '../../../utils/Constants'; // Import style tùy chỉnh nếu cần
 import { addDocument, fetchDocuments, deleteDocument, updateDocument } from "../../../services/FirebaseService";
-import kinhdep from "../../../kinhdep.png";
+import logo from "../../../styles/logo1.png";
 import { ContextBrands } from '../../../context/BrandsContext';
 import { ContextCategories } from '../../../context/CategoriesContext';
-
 
 function Products(props) {
     const [errors, setErrors] = useState({ name: '', description: '', quantity: '', discount: '', price: '' });
@@ -30,22 +29,23 @@ function Products(props) {
     const categories = useContext(ContextCategories);
     const [previewImg, setPreviewImg] = useState(null);
     const [imgUpload, setImgUpload] = useState(null);
-    const [search,setSearch] = useState("");
-    const [productsFilter,setProductFiler] = useState([]);
+    const [search, setSearch] = useState("");
+    const [productsFilter, setProductFiler] = useState([]);
+
     const handleChange = (e) => {
         setProduct({ ...product, [e.target.name]: e.target.value });
     };
-
+    
     useEffect(() => {
         const fetchData = async () => {
             const productData = await fetchDocuments('Products');
             setProducts(productData);
-            const  filteredProducts = search ? productData.filter(product =>
-                product.name.toLowerCase().includes(search.toLowerCase())) : products;
+            const filteredProducts = search ? productData.filter(product =>
+                product.name.toLowerCase().includes(search.toLowerCase())) : productData;
             setProductFiler(filteredProducts);
         };
         fetchData();
-    }, [update,search]);
+    }, [update, search]);
 
     const validate = () => {
         let tempErrors = {};
@@ -66,7 +66,7 @@ function Products(props) {
         if (validate()) {
             if (product.id) {
                 // Nếu đang chỉnh sửa thì cập nhật danh mục
-                await updateDocument("Products", product.id, product);
+                await updateDocument("Products", product.id, product, imgUpload);
                 setSnackbar({
                     open: true,
                     message: 'Product edited successfully!',
@@ -74,7 +74,7 @@ function Products(props) {
                 });
             } else {
                 // Nếu không thì thêm mới danh mục
-                await addDocument("Products", product, imgUpload);
+                await addDocument("Products", product, imgUpload,product.imgUrl);
                 setSnackbar({
                     open: true,
                     message: 'Product added successfully!',
@@ -92,7 +92,9 @@ function Products(props) {
     const onEdit = (element) => {
         setProduct(element); // Gán danh mục vào state
         setErrors({});
+        setPreviewImg(element.imgUrl); // Gán URL của ảnh vào previewImg để hiển thị
         setOpen(true); // Mở modal
+
     };
 
     const onDelete = (element) => {
@@ -110,13 +112,12 @@ function Products(props) {
                 message: 'Product deleted successfully!',
                 severity: 'warning',
             });
-            setUpdate(!update);
-            setDeleteModalOpen(false);
         }
     };
     const handleOpen = () => {
         setOpen(true);
         setProduct({});
+        setPreviewImg(null); // Reset ảnh khi thêm sản phẩm mới
     };
     const handleImgProduct = (e) => {
         const img = e.target.files[0];
@@ -133,15 +134,14 @@ function Products(props) {
         }
     }
     const handleClose = () => setOpen(false);
-
+    
     const handleDeleteModalClose = () => setDeleteModalOpen(false);
 
     const getNameBrand = (id) => {
         const brand = brands.find(a => a.id == id);
         return brand ? brand.name : "";
-        
-    }
 
+    }
     const getNameCategory = (id) => {
         const category = categories.find(a => a.id == id);
         return category ? category.name : ""
@@ -149,7 +149,7 @@ function Products(props) {
 
     // State quản lý trang hiện tại và số hàng mỗi trang
     const [page, setPage] = useState(0); // Trang hiện tại
-    const [rowsPerPage, setRowsPerPage] = useState(5); // Số hàng mỗi trang
+    const [rowsPerPage, setRowsPerPage] = useState(3); // Số hàng mỗi trang
 
     // Hàm thay đổi trang
     const handleChangePage = (event, newPage) => {
@@ -163,7 +163,6 @@ function Products(props) {
     };
     return (
         <div>
-
             <div className='flex justify-between px-6 pb-3'>
                 <h1 className='text-2xl'><b>Product</b></h1>
                 <ButtonGroup variant="contained" aria-label="Basic button group">
@@ -185,109 +184,114 @@ function Products(props) {
                                 <Typography id="add-product-modal-title" variant="h6" component="h2">
                                     {product.id ? "Edit" : "Add New"} Product
                                 </Typography>
-                                <div className='grid md:grid-cols-2 grid-cols-1 gap-2'>
-                                    <TextField
-                                        label="Product Name"
-                                        name="name"
-                                        fullWidth
-                                        value={product && product.name}
-                                        onChange={(e) => setProduct({ ...product, name: e.target.value })}
-                                        error={!!errors.name}
-                                        helperText={errors.name}
-                                        margin="normal"
-                                    />
-                                    <TextField
-                                        label="Quantity"
-                                        name="quantity"
-                                        type="number"
-                                        fullWidth
-                                        value={product && product.quantity}
-                                        onChange={(e) => setProduct({ ...product, quantity: e.target.value })}
-                                        error={!!errors.name}
-                                        helperText={errors.name}
-                                        margin="normal"
-                                    />
-
-                                    <TextField
-                                        select
-                                        label="Category"
-                                        name="category"
-                                        fullWidth
-                                        value={product.category}
-                                        onChange={handleChange}
-                                        margin="normal"
-                                    >
-                                        {categories.map((category) => (
-                                            <MenuItem key={category.id} value={category.id}>
-                                                {category.name}
-                                            </MenuItem>
-                                        ))}
-                                    </TextField>
-
-                                    <TextField
-                                        select
-                                        label="Brand"
-                                        name="brand"
-                                        fullWidth
-                                        value={product.brand}
-                                        onChange={handleChange}
-                                        margin="normal"
-                                    >
-                                        {brands.map((brand) => (
-                                            <MenuItem key={brand.id} value={brand.id}>
-                                                {brand.name}
-                                            </MenuItem>
-                                        ))}
-                                    </TextField>
-
-                                    <TextField
-                                        label="Discount (%)"
-                                        name="discount"
-                                        type="number"
-                                        fullWidth
-                                        value={product && product.discount}
-                                        onChange={(e) => setProduct({ ...product, discount: e.target.value })}
-                                        error={!!errors.name}
-                                        helperText={errors.name}
-                                        margin="normal"
-                                    />
-
-                                    <TextField
-                                        label="Price"
-                                        name="price"
-                                        type="number"
-                                        fullWidth
-
-                                        value={product && product.price}
-                                        onChange={(e) => setProduct({ ...product, price: e.target.value })}
-                                        error={!!errors.name}
-                                        helperText={errors.name}
-                                        margin="normal"
-                                    />
-                                </div>
-                                <TextField
-                                    label="Description"
-                                    name="description"
-                                    fullWidth
-                                    multiline
-                                    rows={1}
-                                    value={product && product.description}
-                                    onChange={(e) => setProduct({ ...product, description: e.target.value })}
-                                    error={!!errors.name}
-                                    helperText={errors.name}
-                                    margin="normal"
-                                />
-                                <div>
-                                    {/* Thêm trường Image */}
-                                    <input
-                                        accept="image/*"
-                                        type="file"
-                                        name="img"
-                                        style={{ marginTop: '16px' }}
-                                        onChange={handleImgProduct}
-                                    />
+                                <div className='grid md:grid-cols-3 grid-cols-1 gap-2'>
                                     <div>
-                                        <img src={previewImg ? previewImg : kinhdep} alt="" />
+                                        <TextField
+                                            label="Product Name"
+                                            name="name"
+                                            fullWidth
+                                            value={product && product.name}
+                                            onChange={(e) => setProduct({ ...product, name: e.target.value })}
+                                            error={!!errors.name}
+                                            helperText={errors.name}
+                                            margin="normal"
+                                        />
+                                        <TextField
+                                            label="Quantity"
+                                            name="quantity"
+                                            type="number"
+                                            fullWidth
+                                            value={product && product.quantity}
+                                            onChange={(e) => setProduct({ ...product, quantity: e.target.value })}
+                                            error={!!errors.name}
+                                            helperText={errors.name}
+                                            margin="normal"
+                                        />
+                                        <TextField
+                                            select
+                                            label="Category"
+                                            name="category"
+                                            fullWidth
+                                            value={product.category}
+                                            onChange={handleChange}
+                                            margin="normal"
+                                        >
+                                            {categories.map((category) => (
+                                                <MenuItem key={category.id} value={category.id}>
+                                                    {category.name}
+                                                </MenuItem>
+                                            ))}
+                                        </TextField>
+                                    </div>
+                                    <div>
+                                        <TextField
+                                            select
+                                            label="Brand"
+                                            name="brand"
+                                            fullWidth
+                                            value={product.brand}
+                                            onChange={handleChange}
+                                            margin="normal"
+                                        >
+                                            {brands.map((brand) => (
+                                                <MenuItem key={brand.id} value={brand.id}>
+                                                    {brand.name}
+                                                </MenuItem>
+                                            ))}
+                                        </TextField>
+                                        <TextField
+                                            label="Discount (%)"
+                                            name="discount"
+                                            type="number"
+                                            fullWidth
+                                            value={product && product.discount}
+                                            onChange={(e) => setProduct({ ...product, discount: e.target.value })}
+                                            error={!!errors.name}
+                                            helperText={errors.name}
+                                            margin="normal"
+                                        />
+
+                                        <TextField
+                                            label="Price"
+                                            name="price"
+                                            type="number"
+                                            fullWidth
+                                            value={product && product.price}
+                                            onChange={(e) => setProduct({ 
+                                                ...product, 
+                                                price: parseInt(e.target.value) || 0 // Chuyển đổi chuỗi thành số thập phân, nếu không có giá trị thì đặt là 0
+                                            })}
+                                            error={!!errors.name}
+                                            helperText={errors.name}
+                                            margin="normal"
+                                        />
+                                    </div>
+                                    <div>
+                                        <TextField
+                                            label="Description"
+                                            name="description"
+                                            fullWidth
+                                            multiline
+                                            rows={1}
+                                            value={product && product.description}
+                                            onChange={(e) => setProduct({ ...product, description: e.target.value })}
+                                            error={!!errors.name}
+                                            helperText={errors.name}
+                                            margin="normal"
+                                        />
+                                        <div>
+                                            {/* Thêm trường Image */}
+                                            <input
+                                                accept="image/*"
+                                                type="file"
+                                                name="img"
+                                                style={{ marginTop: '16px' }}
+                                                onChange={handleImgProduct}
+                                            />
+                                            <div className='mt-2'>
+                                                <img src={previewImg ? previewImg : logo} alt="" />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <Button variant="contained" color="primary" onClick={handleSubmit} sx={{ mt: 2 }}>
@@ -323,10 +327,10 @@ function Products(props) {
                                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                 >
                                     <TableCell component="th" scope="row">
-                                    {index + 1 + page * rowsPerPage}
+                                        {index + 1 + page * rowsPerPage}
                                     </TableCell>
                                     <TableCell align="right">
-                                        <img style={{ width: "80px" }} src={element.imgUrl} alt="" />
+                                        <img style={{ width: "50px" }} src={element.imgUrl} alt="" />
                                     </TableCell>
                                     <TableCell align="right">{element.name}</TableCell>
                                     <TableCell align="right">{element.description}</TableCell>
@@ -334,8 +338,8 @@ function Products(props) {
                                     <TableCell align="right">{getNameCategory(element.category)}</TableCell>
                                     <TableCell align="right">{getNameBrand(element.brand)}</TableCell>
                                     <TableCell align="right">{element.discount}</TableCell>
-                                    <TableCell align="right">{element.price}</TableCell>
-                                    <TableCell align="right">
+                                    <TableCell align="right">{element.price.toLocaleString('vi-VN')}</TableCell>
+                                    <TableCell align="right" className='text-nowrap'>
                                         {/* Nút Edit */}
                                         <IconButton
                                             color="primary"
@@ -357,17 +361,17 @@ function Products(props) {
                             ))}
                         </TableBody>
                     </Table>
-                     {/* Phân trang */}
-            <TablePagination
-                component="div"
-                count={products.length}
-                page={page}
-                onPageChange={handleChangePage}
-                rowsPerPage={rowsPerPage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-                labelRowsPerPage="Rows per page"
-                rowsPerPageOptions={[5, 10, 25]}
-            />
+                    {/* Phân trang */}
+                    <TablePagination
+                        component="div"
+                        count={products.length}
+                        page={page}
+                        onPageChange={handleChangePage}
+                        rowsPerPage={rowsPerPage}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
+                        labelRowsPerPage="Rows per page"
+                        rowsPerPageOptions={[3, 6, 9]}
+                    />
                 </TableContainer>
 
                 {/* Snackbar for notifications */}

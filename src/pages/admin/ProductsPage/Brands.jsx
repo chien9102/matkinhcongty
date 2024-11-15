@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, IconButton, ButtonGroup, Box } from '@mui/material';
+import { TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, IconButton, ButtonGroup, Box, TablePagination } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import { addDocument, fetchDocuments, deleteDocument, updateDocument } from "../../../services/FirebaseService";
@@ -16,15 +16,20 @@ function Brands(props) {
     const [update, setUpdate] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false); // Trạng thái mở Modal Delete
     const [idDelete, setIdDelete] = useState(null);
+    const [search, setSearch] = useState("");
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success', });
-
+    const [productsFilter, setProductFiler] = useState([]);
+    
     useEffect(() => {
         const fetchData = async () => {
             const brandData = await fetchDocuments('Brands');
             setbrands(brandData);
+            const filteredBrands = search ? brandData.filter(brand =>
+                brand.name.toLowerCase().includes(search.toLowerCase())) : brandData;
+            setProductFiler(filteredBrands);
         };
         fetchData();
-    }, [update]);
+    }, [update, search]);
 
     const validate = () => {
         let tempErrors = {};
@@ -61,7 +66,6 @@ function Brands(props) {
             setUpdate(!update);
         }
     };
-
     const handleDelete = async () => {
         if (idDelete) {
             await deleteDocument("Brands", idDelete);
@@ -72,11 +76,10 @@ function Brands(props) {
                 message: 'Brands deleted successfully!',
                 severity: 'warning',
             });
-            setUpdate(!update);
-            setDeleteModalOpen(false);
+            
         }
     };
-    
+
     const onEdit = (element) => {
         setbrand(element); // Gán danh mục vào state
         setErrors({});
@@ -95,6 +98,21 @@ function Brands(props) {
 
     const handleClose = () => setOpen(false);
     const handleDeleteModalClose = () => setDeleteModalOpen(false);
+
+    // State quản lý trang hiện tại và số hàng mỗi trang
+    const [page, setPage] = useState(0); // Trang hiện tại
+    const [rowsPerPage, setRowsPerPage] = useState(5); // Số hàng mỗi trang
+
+    // Hàm thay đổi trang
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+    };
+
+    // Hàm thay đổi số hàng mỗi trang
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
     return (
         <div>
             <div>
@@ -102,7 +120,7 @@ function Brands(props) {
                     <h1 className='text-2xl'><b>List Brand</b></h1>
                     <ButtonGroup variant="contained" aria-label="Basic button group">
                         <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Seacrh ..." aria-label="Recipient's username" aria-describedby="basic-addon2" />
+                            <input onChange={(e) => setSearch(e.target.value)} type="text" class="form-control" placeholder="Seacrh ..." aria-label="Recipient's username" aria-describedby="basic-addon2" />
                             <Button><i class="fa-solid fa-magnifying-glass"></i></Button>
                         </div>
                     </ButtonGroup>
@@ -165,7 +183,7 @@ function Brands(props) {
                             </TableHead>
 
                             <TableBody>
-                                {brands.map((element, index) => (
+                                {productsFilter.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((element, index) => (
                                     <TableRow
                                         key={element.name}
                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
@@ -196,6 +214,17 @@ function Brands(props) {
                                 ))}
                             </TableBody>
                         </Table>
+                        {/* Phân trang */}
+                        <TablePagination
+                            component="div"
+                            count={brands.length}
+                            page={page}
+                            onPageChange={handleChangePage}
+                            rowsPerPage={rowsPerPage}
+                            onRowsPerPageChange={handleChangeRowsPerPage}
+                            labelRowsPerPage="Rows per page"
+                            rowsPerPageOptions={[5, 10, 25]}
+                        />
                     </TableContainer>
                 </div>
             </div>

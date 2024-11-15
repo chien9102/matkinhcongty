@@ -1,0 +1,250 @@
+li {
+    list-style: none;
+}
+
+img {
+    width: 100%;
+    height: 100%;
+}
+
+.hoac {
+    position: absolute;
+    background-color: white;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 0 20px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+footer {
+
+    h1,
+    b,
+    hr {
+        margin-bottom: 8px;
+    }
+
+
+}
+
+.img-product {
+    height: 200px;
+}
+
+@media screen and (min-width:1200px) {
+    header {
+        .navbar {
+            display: grid;
+            grid-template-columns: 2fr 3fr 3fr;
+            gap: 10px;
+
+            .fa-bars {
+                display: none !important;
+
+            }
+        }
+
+    }
+
+    .cart1 {
+        height: 300px;
+    }
+
+    .main {
+        padding: 40px 80px 40px 80px;
+
+        .sanpham {
+            .card {
+
+                .buttton-xem {
+                    display: none;
+                }
+            }
+
+        }
+    }
+
+    .detail {
+        .detail1 {
+
+            padding-left: 2.5rem
+                /* 40px */
+            ;
+            padding-right: 2.5rem
+                /* 40px */
+            ;
+
+        }
+    }
+
+    footer {
+        img {
+            height: 200px;
+        }
+    }
+
+}
+
+@media screen and (min-width:769px) and (max-width:1199px) {
+    header {
+        .navbar {
+            display: flex;
+            flex-wrap: wrap;
+
+            .search {
+                order: 1;
+                width: 100%;
+            }
+
+            .menu {
+                h1 {
+                    display: none;
+                }
+            }
+
+        }
+
+        .user {
+            display: none;
+        }
+
+        .kinh {
+            display: none;
+        }
+
+    }
+
+    .cart1 {
+        height: 720px;
+    }
+
+    .main {
+        padding: 40px 50px 40px 50px;
+
+
+    }
+
+    .detail {
+        .nut-all {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .detail1 {
+
+            padding-left: 2.5rem
+                /* 40px */
+            ;
+            padding-right: 2.5rem
+                /* 40px */
+            ;
+
+        }
+    }
+
+    footer {
+        img {
+            height: 150px;
+        }
+    }
+}
+
+
+@media screen and (max-width: 768px) {
+    header {
+        .navbar {
+            display: flex;
+            flex-wrap: wrap;
+
+            .search {
+                order: 1;
+                width: 100%;
+            }
+
+            .menu {
+                h1 {
+                    display: none;
+                }
+            }
+        }
+
+        .kinh {
+            display: none;
+        }
+
+        .user {
+            display: none;
+        }
+    }
+
+    .seacrh-card {
+        button {
+            display: none;
+        }
+    }
+
+    .cart1 {
+        height: 370px;
+
+    }
+
+    .main {
+        padding: 10px 10px 10px 10px;
+
+        .sanpham {
+            .xemthem {
+                display: none;
+            }
+
+            .card {
+
+                button {
+                    display: none;
+                }
+            }
+
+        }
+    }
+
+    .detail {
+        .all {
+            flex-direction: column;
+            justify-content: space-evenly;
+        }
+
+        .sp {
+            margin-top: 40px;
+        }
+
+        .img-rada {
+            display: none;
+        }
+
+        .nut-all {
+            flex-direction: column;
+            gap: 10px;
+
+        }
+
+        .thongtin {
+
+            flex-direction: column;
+        }
+
+        .detail1 {
+
+            padding-left: 1.5rem
+                /* 40px */
+            ;
+            padding-right: 1.5rem
+                /* 40px */
+            ;
+
+        }
+    }
+
+}

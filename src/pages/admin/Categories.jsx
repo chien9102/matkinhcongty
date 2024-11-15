@@ -7,7 +7,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import ButtonGroup from '@mui/material/ButtonGroup';
-import { Modal, Box, Typography, TextField, Button, Alert, Snackbar, IconButton } from '@mui/material';
+import { Modal, Box, Typography, TextField, Button, Alert, Snackbar, IconButton ,TablePagination } from '@mui/material';
 import { addDocument, fetchDocuments, deleteDocument, updateDocument } from "../../services/FirebaseService";
 import ModalDelete from './ModalDelete';
 import { style } from '../../utils/Constants';
@@ -21,13 +21,18 @@ function Categories(props) {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false); // Trạng thái mở Modal Delete
   const [idDelete, setIdDelete] = useState(null);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success', });
+  const [search, setSearch] = useState("");
+  const [productsFilter, setProductFiler] = useState([]);
   useEffect(() => {
     const fetchData = async () => {
       const categoriesData = await fetchDocuments('categories');
       setCategories(categoriesData);
+      const filteredCategory = search ? categoriesData.filter(category =>
+        category.name.toLowerCase().includes(search.toLowerCase())) : categoriesData;
+      setProductFiler(filteredCategory);
     };
     fetchData();
-  }, [update]);
+  }, [update, search]);
 
   const validate = () => {
     let tempErrors = {};
@@ -93,6 +98,20 @@ function Categories(props) {
   const handleClose = () => setOpen(false);
   const handleDeleteModalClose = () => setDeleteModalOpen(false);
 
+  // State quản lý trang hiện tại và số hàng mỗi trang
+  const [page, setPage] = useState(0); // Trang hiện tại
+  const [rowsPerPage, setRowsPerPage] = useState(5); // Số hàng mỗi trang
+
+  // Hàm thay đổi trang
+  const handleChangePage = (event, newPage) => {
+      setPage(newPage);
+  };
+
+  // Hàm thay đổi số hàng mỗi trang
+  const handleChangeRowsPerPage = (event) => {
+      setRowsPerPage(parseInt(event.target.value, 10));
+      setPage(0);
+  };
   return (
     <div>
       <div className="flex justify-between p-6">
@@ -104,7 +123,7 @@ function Categories(props) {
             aria-label="Disabled button group"
           >
             <div class="input-group">
-              <input type="text" class="form-control" placeholder="Seacrh ..." aria-label="Recipient's username" aria-describedby="basic-addon2" />
+            <input onChange={(e) => setSearch(e.target.value)} type="text" class="form-control" placeholder="Seacrh ..." aria-label="Recipient's username" aria-describedby="basic-addon2" />
               <Button><i class="fa-solid fa-magnifying-glass"></i></Button>
             </div>
 
@@ -170,7 +189,7 @@ function Categories(props) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {categories.map((element, index) => (
+              {productsFilter.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((element, index) => (
                 <TableRow
                   key={element.name}
                   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
@@ -180,7 +199,7 @@ function Categories(props) {
                   </TableCell>
                   <TableCell align="right">{element.name}</TableCell>
                   <TableCell align="right">{element.description.length > 25 ? `${element.description.substring(0, 25)}...` : element.description}</TableCell>
-                  <TableCell align="right">
+                  <TableCell className='flex' align="right">
                     {/* Nút Edit */}
                     <IconButton
                       color="primary"
@@ -200,7 +219,19 @@ function Categories(props) {
                 </TableRow>
               ))}
             </TableBody>
+            
           </Table>
+          {/* Phân trang */}
+          <TablePagination
+                            component="div"
+                            count={categories.length}
+                            page={page}
+                            onPageChange={handleChangePage}
+                            rowsPerPage={rowsPerPage}
+                            onRowsPerPageChange={handleChangeRowsPerPage}
+                            labelRowsPerPage="Rows per page"
+                            rowsPerPageOptions={[5, 10, 25]}
+                        />
         </TableContainer>
 
         {/* Snackbar for notifications */}
@@ -213,7 +244,7 @@ function Categories(props) {
             {snackbar.message}
           </Alert>
         </Snackbar>
-        <ModalDelete handleDelete={handleDelete} deleteModalOpen={deleteModalOpen} handleDeleteModalClose={handleDeleteModalClose}/>
+        <ModalDelete handleDelete={handleDelete} deleteModalOpen={deleteModalOpen} handleDeleteModalClose={handleDeleteModalClose} />
       </div>
     </div>
   );

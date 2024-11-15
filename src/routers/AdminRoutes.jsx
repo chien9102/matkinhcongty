@@ -8,6 +8,9 @@ import Products from "../pages/admin/ProductsPage/Products"
 import Reviews from "../pages/admin/Reviews"
 import Account from "../pages/admin/UsersPage/Account"
 import Wishlists from "../pages/admin/UsersPage/Wishlists"
+import Commune from '../pages/admin/Location/Commune';
+import District from '../pages/admin/Location/District';
+import Province from '../pages/admin/Location/Province';
 import { Route, Routes } from 'react-router-dom';
 function AdminRoutes(props) {
     const routes = [
@@ -56,6 +59,23 @@ function AdminRoutes(props) {
             path: "/wishlists",
             Comment : Wishlists
         },
+        {
+            id: 10,
+            path: "/Commune",
+            Comment : Commune
+        },
+        {
+            id: 11,
+            path: "/District",
+            Comment : District
+        },
+        {
+            id: 12,
+            path: "/Province",
+            Comment : Province
+        },
+
+
     ]
     return (
         <Routes>

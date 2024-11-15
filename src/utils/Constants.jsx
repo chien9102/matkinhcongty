@@ -50,6 +50,28 @@ export const menu = [
             }
         ]
     },
+    {
+        id: 4,
+        title: "Location",
+        icon: " fa-location-dot",
+        items: [
+            {
+                id: 1,
+                title: "Commune",
+                path: "/Commune"
+            },
+            {
+                id: 2,
+                title: "District",
+                path: "/District"
+            },
+            {
+                id: 3,
+                title: "Province",
+                path: "/Province"
+            }
+        ]
+    },
 ];
 
 export const style = {
